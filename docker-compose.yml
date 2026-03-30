@@ -62,6 +62,23 @@ services:
     networks:
       practica2_network:
         ipv4_address: 172.31.0.4
+
+  hive:
+    image: apache/hive:4.2.0
+    container_name: hive4
+    hostname: hive4
+    environment:
+      - SERVICE_NAME=hiveserver2
+    volumes:
+      - ./Flights.parquet:/workspace/Flights.parquet
+    ports:
+      - "10000:10000"
+      - "10002:10002"
+    networks:
+      practica2_network:
+        ipv4_address: 172.31.0.5
+
+
 networks:
   practica2_network:
     driver: bridge
