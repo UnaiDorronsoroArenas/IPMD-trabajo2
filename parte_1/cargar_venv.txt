@@ -1,5 +1,5 @@
 #!/bin/bash
 # EJECUTAR CON SOURCE
-python3 -v venv practica2_venv
+python3 -m venv practica2_venv
 source practica2_venv/bin/activate
 pip install numpy pandas pyarrow

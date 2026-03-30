@@ -11,7 +11,7 @@ services:
     volumes:
       - ./namenode:/opt/hadoop/data/nameNode
       - ./config:/opt/hadoop/etc/hadoop
-      - ./start-hdfs.sh:/start-hdfs.sh
+      - ./parte_1/start-hdfs.sh:/start-hdfs.sh
       - ./config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
     ports:
       - "9870:9870"
@@ -36,7 +36,7 @@ services:
       - ./config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
     depends_on:
       - namenode
-    command: [ "/bin/bash", "/init-datanode.sh" ]
+    command: [ "/bin/bash", "/init-datanode.sh", "/mi_script.bash"]
     restart: always
     networks:
       practica2_network:
