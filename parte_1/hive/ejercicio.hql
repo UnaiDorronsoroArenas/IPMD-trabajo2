@@ -1,7 +1,10 @@
+-- Limpieza por si acaso
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS hive_flights;
 DROP TABLE IF EXISTS perday;
 
+-- 1)
+-- El fichero Flights.parquet debe estar dentro de /user/hive en HDFS (hive.bash lo hace)
 CREATE EXTERNAL TABLE flights (
   FL_DATE DATE,
   DEP_DELAY INT,
@@ -14,13 +17,22 @@ CREATE EXTERNAL TABLE flights (
 STORED AS PARQUET
 LOCATION '/user/hive';
 
--- LOAD DATA INPATH '/user/hive/Flights.parquet' OVERWRITE INTO TABLE flights;
--- El fichero Flights.parquet debe estar dentro de /user/hive en HDFS
-
-CREATE TABLE hive_flights
+-- 2)
+CREATE TABLE hive_flights (
+  FL_DATE DATE,
+  DEP_DELAY INT,
+  ARR_DELAY INT,
+  AIR_TIME INT,
+  DISTANCE INT,
+  DEP_TIME DOUBLE,
+  ARR_TIME DOUBLE
+)
 STORED AS PARQUET
-AS SELECT * FROM flights;
+LOCATION '/user/hive/hive_flights';
 
+LOAD DATA INPATH '/user/hive/Flights.parquet' INTO TABLE hive_flights;
+
+-- 3)
 -- Consultas simples para comprobar que ambas tablas devuelven los mismos resultados
 SELECT COUNT(*) AS total_flights FROM flights;
 SELECT COUNT(*) AS total_flights FROM hive_flights;
@@ -28,20 +40,19 @@ SELECT COUNT(*) AS total_flights FROM hive_flights;
 SELECT AVG(DEP_DELAY) AS avg_dep_delay, AVG(ARR_DELAY) AS avg_arr_delay FROM flights;
 SELECT AVG(DEP_DELAY) AS avg_dep_delay, AVG(ARR_DELAY) AS avg_arr_delay FROM hive_flights;
 
--- Tabla perday en formato texto CSV con un resumen por día
-CREATE TABLE perday (
-  FL_DATE DATE,
-  flights_count BIGINT,
-  avg_dep_delay DOUBLE,
-  avg_arr_delay DOUBLE
-)
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY ','
-STORED AS TEXTFILE
-AS
+-- Todos los resultados son los mismos
 
+-- Tabla perday en formato texto CSV con un resumen por día
+CREATE TABLE perday
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+LOCATION '/user/hive/perday'
+AS
 SELECT
   FL_DATE,
-  COUNT(FL_DATE) AS f_count,
+  COUNT(FL_DATE) AS f_count
 FROM flights
 GROUP BY FL_DATE;
+
+-- El resultado de esto se puede ver con
+-- hdfs dfs -cat /user/hive/perday/000000_0
