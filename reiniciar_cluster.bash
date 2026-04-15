@@ -12,7 +12,6 @@ fi
 
 docker compose down
 
-
 rm -rf namenode
 rm -rf datanode1
 rm -rf datanode2
