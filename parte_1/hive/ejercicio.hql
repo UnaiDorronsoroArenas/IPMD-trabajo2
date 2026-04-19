@@ -15,7 +15,7 @@ CREATE EXTERNAL TABLE flights (
   ARR_TIME DOUBLE
 )
 STORED AS PARQUET
-LOCATION '/user/hive';
+LOCATION 'hdfs://namenode:9000/user/hive/flights';
 
 -- 2)
 CREATE TABLE hive_flights (
@@ -27,10 +27,10 @@ CREATE TABLE hive_flights (
   DEP_TIME DOUBLE,
   ARR_TIME DOUBLE
 )
-STORED AS PARQUET
-LOCATION '/user/hive/hive_flights';
+STORED AS PARQUET;
 
-LOAD DATA INPATH '/user/hive/Flights.parquet' INTO TABLE hive_flights;
+-- Usamos el de HDFS para flights, para este usamos el local y asi no tocamos el otro
+LOAD DATA LOCAL INPATH '/workspace/Flights.parquet' INTO TABLE hive_flights;
 
 -- 3)
 -- Consultas simples para comprobar que ambas tablas devuelven los mismos resultados
@@ -46,7 +46,7 @@ SELECT AVG(DEP_DELAY) AS avg_dep_delay, AVG(ARR_DELAY) AS avg_arr_delay FROM hiv
 CREATE TABLE perday
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE
-LOCATION '/user/hive/perday'
+LOCATION 'hdfs://namenode:9000/user/hive/perday'
 AS
 SELECT
   FL_DATE,
@@ -54,5 +54,4 @@ SELECT
 FROM flights
 GROUP BY FL_DATE;
 
--- El resultado de esto se puede ver con
--- hdfs dfs -cat /user/hive/perday/000000_0
+-- El resultado de esto se puede ver con el script recuperar_resultado.bash
