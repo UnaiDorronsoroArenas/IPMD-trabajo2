@@ -10,10 +10,13 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-docker compose down
+IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 |  awk '{print $2}' | tail -1)
 
+KUDU_QUICKSTART_IP=$IP docker compose down
+
+# HDFS
 rm -rf namenode
 rm -rf datanode1
 rm -rf datanode2
 
-docker compose up
+bash launch_clusters.sh
