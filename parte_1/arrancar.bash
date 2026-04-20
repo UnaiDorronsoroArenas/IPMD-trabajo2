@@ -17,6 +17,6 @@ docker exec --user root hive4 hadoop fs -fs hdfs://namenode:9000 -mkdir /user/hi
 docker exec --user root hive4 hadoop fs -fs hdfs://namenode:9000 -chmod 777 /user/hive/perday
 
 docker exec --user root hive4 hadoop fs -fs hdfs://namenode:9000 -mkdir /user/hive/hive_flights
-#docker exec --user root hive4 hadoop fs -fs hdfs://namenode:9000 -chmod 777 /user/hive/hive_flights
+docker exec --user root hive4 hadoop fs -fs hdfs://namenode:9000 -chmod 777 /user/hive/hive_flights
 
 docker exec -it hive4 beeline -u 'jdbc:hive2://localhost:10000/'

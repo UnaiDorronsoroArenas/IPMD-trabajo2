@@ -27,10 +27,13 @@ CREATE TABLE hive_flights (
   DEP_TIME DOUBLE,
   ARR_TIME DOUBLE
 )
-STORED AS PARQUET;
+STORED AS PARQUET
+LOCATION 'hdfs://namenode:9000/user/hive/hive_flights';
 
 -- Usamos el de HDFS para flights, para este usamos el local y asi no tocamos el otro
 LOAD DATA LOCAL INPATH '/workspace/Flights.parquet' INTO TABLE hive_flights;
+-- LOCAL para que no borre el archivo original
+
 
 -- 3)
 -- Consultas simples para comprobar que ambas tablas devuelven los mismos resultados
