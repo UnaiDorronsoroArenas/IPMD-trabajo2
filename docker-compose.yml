@@ -8,13 +8,16 @@ services:
     environment:
       - HADOOP_HOME=/opt/hadoop
       - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+      - HADOOP_NAMENODE_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent-1.5.0.jar=9404:/opt/jmx/namenode.yaml
     volumes:
       - ./namenode:/opt/hadoop/data/nameNode
       - ./config:/opt/hadoop/etc/hadoop
       - ./parte_1/start-hdfs.sh:/start-hdfs.sh
       - ./config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
+      - ./monitorizacion/jmx:/opt/jmx
     ports:
       - "9870:9870"
+      - "9404:9404"
     command: [ "/bin/bash", "/start-hdfs.sh" ]
     restart: always
     networks:
@@ -28,11 +31,15 @@ services:
     environment:
       - HADOOP_HOME=/opt/hadoop
       - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+      - HADOOP_DATANODE_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent-1.5.0.jar=9405:/opt/jmx/datanode.yaml
     volumes:
       - ./datanode1:/opt/hadoop/data/dataNode
       - ./config:/opt/hadoop/etc/hadoop
       - ./init-datanode.sh:/init-datanode.sh
       - ./config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
+      - ./monitorizacion/jmx:/opt/jmx
+    ports:
+      - "9405:9405"
     depends_on:
       - namenode
     command: [ "/bin/bash", "/init-datanode.sh", "/mi_script.bash"]
@@ -48,11 +55,15 @@ services:
     environment:
       - HADOOP_HOME=/opt/hadoop
       - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+      - HADOOP_DATANODE_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent-1.5.0.jar=9406:/opt/jmx/datanode.yaml
     volumes:
       - ./datanode2:/opt/hadoop/data/dataNode
       - ./config:/opt/hadoop/etc/hadoop
       - ./init-datanode.sh:/init-datanode.sh
       - ./config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
+      - ./monitorizacion/jmx:/opt/jmx
+    ports:
+      - "9406:9406"
     depends_on:
       - namenode
     command: [ "/bin/bash", "/init-datanode.sh" ]
@@ -80,6 +91,7 @@ services:
 ################
   kudu-master-1:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-master-1
     ports:
       - "7051:7051"
       - "8051:8051"
@@ -105,6 +117,7 @@ services:
 
   kudu-master-2:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-master-2
     ports:
       - "7151:7151"
       - "8151:8151"
@@ -127,6 +140,7 @@ services:
       - practica2_network
   kudu-master-3:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-master-3
     ports:
       - "7251:7251"
       - "8251:8251"
@@ -149,6 +163,7 @@ services:
       - practica2_network
   kudu-tserver-1:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-tserver-1
     depends_on:
       - kudu-master-1
       - kudu-master-2
@@ -175,6 +190,7 @@ services:
       - practica2_network
   kudu-tserver-2:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-tserver-2
     depends_on:
       - kudu-master-1
       - kudu-master-2
@@ -201,6 +217,7 @@ services:
       - practica2_network
   kudu-tserver-3:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-tserver-3
     depends_on:
       - kudu-master-1
       - kudu-master-2
@@ -227,6 +244,7 @@ services:
       - practica2_network
   kudu-tserver-4:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-tserver-4
     depends_on:
       - kudu-master-1
       - kudu-master-2
@@ -253,6 +271,7 @@ services:
       - practica2_network
   kudu-tserver-5:
     image: apache/kudu:${KUDU_QUICKSTART_VERSION:-latest}
+    container_name: kudu-tserver-5
     depends_on:
       - kudu-master-1
       - kudu-master-2
@@ -279,6 +298,53 @@ services:
       - practica2_network
 
 
+##################
+# Monitorización #
+##################
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    hostname: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitorizacion/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro # compartimos fichero de configuración de prometheus
+      - prometheus_data:/prometheus
+    depends_on:
+      - namenode
+      - datanode1
+      - datanode2
+    networks:
+      - practica2_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    hostname: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=1234
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitorizacion/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitorizacion/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - practica2_network
+
+
 volumes:
   kudu-master-1:
   kudu-master-2:
@@ -288,9 +354,13 @@ volumes:
   kudu-tserver-3:
   kudu-tserver-4:
   kudu-tserver-5:
+  prometheus_data:
+  grafana_data:
 
 
 networks:
   practica2_network:
     driver: bridge
 
+
+ 

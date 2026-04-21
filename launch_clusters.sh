@@ -1,4 +1,9 @@
 # Script para el lanzamiento de ambos clusters: HDFS (parte 1) y KUDU (parte 2)
+# EJECUTAR CON SUDO
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Ejecutar con SUDO"
+    exit 1
+fi
 rm -rf namenode
 rm -rf datanode1
 rm -rf datanode2
