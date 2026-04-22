@@ -12,7 +12,7 @@ fi
 
 IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 |  awk '{print $2}' | tail -1)
 
-KUDU_QUICKSTART_IP=$IP docker compose down
+KUDU_QUICKSTART_IP=$IP docker compose down -v
 
 # HDFS
 rm -rf namenode
