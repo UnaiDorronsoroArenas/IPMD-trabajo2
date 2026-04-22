@@ -3,7 +3,7 @@ docker stop kudu-impala
 docker rm kudu-impala
 
 # Lanzamos el contenedor
-docker run -d --name kudu-impala --network="ipmd-trabajo2_practica2_network" \
+docker run -d --name kudu-impala --network="practica2_network" \
   -e JAVA_HOME="/usr" \
   -v ../../Flights.parquet:/workspace/Flights.parquet \
   -v $(pwd):/workspace \
@@ -18,7 +18,6 @@ docker exec kudu-impala /bin/bash -c "hadoop fs -fs hdfs://namenode:9000 -mkdir 
 docker exec kudu-impala /bin/bash -c "hadoop fs -fs hdfs://namenode:9000 -put /workspace/Flights.parquet /user/impala/flights/"
 # Comprobamos que el fichero ha sido copiado correctamente
 docker exec kudu-impala /bin/bash -c "hadoop fs -fs hdfs://namenode:9000 -ls /user/impala/flights"
-
 
 # Realización de los ejercicios
 docker exec kudu-impala /bin/bash -c "impala-shell -f /workspace/ejercicios.sql"

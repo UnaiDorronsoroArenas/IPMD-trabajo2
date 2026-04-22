@@ -348,7 +348,7 @@ services:
 # Monitorización de KUDU: kudu prometheus exporter #
 ####################################################
   kudu-exporter:
-    image: eclipse-temurin:11-jre-alpine
+    image: public.ecr.aws/amazoncorretto/amazoncorretto:11
     container_name: kudu-exporter
     hostname: kudu-exporter
     working_dir: /opt/kudu-exporter
@@ -389,6 +389,7 @@ volumes:
 
 networks:
   practica2_network:
+    name: practica2_network
     driver: bridge
 
 

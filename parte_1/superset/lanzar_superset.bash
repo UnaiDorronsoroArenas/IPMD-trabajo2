@@ -25,8 +25,8 @@ done
 
 echo "Container $CONTAINER_NAME has stopped."
 
-docker exec superset_app pip install thrift thrift-sasl
-docker network connect practica_2_practica2_network superset_app
+docker exec superset_app pip install thrift thrift-sasl impyla
+docker network connect practica2_network superset_app
 cd ..
 
 echo "Superset se ha iniciado correctamente!"
