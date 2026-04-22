@@ -1,6 +1,6 @@
 # Detenemos y borramos el contenedor si fue creado con anterioridad
 docker stop kudu-impala
-docker rm kudu-impala
+docker rm kudu-impala -v
 
 # Lanzamos el contenedor
 docker run -d --name kudu-impala --network="practica2_network" \
@@ -11,7 +11,7 @@ docker run -d --name kudu-impala --network="practica2_network" \
   --memory=4096m apache/kudu:impala-latest impala
 
 # Esperamos a que el contenedor arranque
-sleep 15
+sleep 30
 
 # Creamos el directorio /user/impala/flights y copiamos ahí el archivo de vuelo .parquet del workspace
 docker exec kudu-impala /bin/bash -c "hadoop fs -fs hdfs://namenode:9000 -mkdir -p /user/impala/flights"
