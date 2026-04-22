@@ -1,0 +1,24 @@
+# Fetcher Configuration
+# Port of Kudu Server should be 8051, and Kudu Tablet Server should be 8050
+prom.kudu.fetcher.classname: io.prometheus.kudu.fetcher.KuduMetricRestFetcher
+prom.kudu.fetcher.kudu-nodes:
+  - kudu-master-1:8051
+  - kudu-master-2:8151
+  - kudu-master-3:8251
+  - kudu-tserver-1:8050
+  - kudu-tserver-2:8150
+  - kudu-tserver-3:8250
+  - kudu-tserver-4:8350
+  - kudu-tserver-5:8450
+prom.kudu.fetcher.interval: 10000
+
+# Standalone Reporter Configuration
+# Please visit http://localhost:9055/metrics to check kudu-exporter status after start
+prom.kudu.reporter.classname: io.prometheus.kudu.reporter.KuduMetricLocalReporter
+prom.kudu.reporter.local.port: 9055
+
+# Push-Gateway Reporter Configuration
+# Push-Gateway should be install before running kudu-exporter
+#prom.kudu.reporter.classname: io.prometheus.kudu.reporter.KuduMetricPushGatewayReporter
+#prom.kudu.reporter.pushgateway.host: 127.0.0.1:9091
+#prom.kudu.reporter.pushgateway.interval: 10000

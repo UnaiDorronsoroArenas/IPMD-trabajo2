@@ -344,6 +344,35 @@ services:
     networks:
       - practica2_network
 
+####################################################
+# Monitorización de KUDU: kudu prometheus exporter #
+####################################################
+  kudu-exporter:
+    image: eclipse-temurin:11-jre-alpine
+    container_name: kudu-exporter
+    hostname: kudu-exporter
+    working_dir: /opt/kudu-exporter
+    volumes:
+      - ./monitorizacion/kudu-exporter:/opt/kudu-exporter
+    ports:
+      - "9055:9055"
+    command: >
+      java -jar ./prometheus-kudu-exporter-0.2.0.jar
+           --config ./conf/kudu-exporter.yml
+           --include ./conf/include-metrics
+           --exclude ./conf/exclude-metrics
+    depends_on:
+      - kudu-master-1
+      - kudu-master-2
+      - kudu-master-3
+      - kudu-tserver-1
+      - kudu-tserver-2
+      - kudu-tserver-3
+      - kudu-tserver-4
+      - kudu-tserver-5
+    restart: unless-stopped
+    networks:
+      - practica2_network
 
 volumes:
   kudu-master-1:
